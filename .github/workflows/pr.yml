@@ -192,7 +192,6 @@ jobs:
       - name: Get Changed Files
         id: getfile
         run: |
-          # echo "::set-output name=project_files::$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep "src/data/projects" | sed ':a;N;$!ba;s/\n/%0A/g' )"
           PROJECT_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep "src/data/projects" )
 
           if [ -z "$PROJECT_FILES" ]; then
@@ -201,23 +200,14 @@ jobs:
             echo ::set-env name=PROJECT_FILES::$PROJECT_FILES
           fi
 
-      # - name: echo output
-      #   if: env.PROJECT_FILES != ''
-      #   run: |
-      #     echo $PROJECT_FILES
-
       - name: Run Project Tags Check
         if: env.PROJECT_FILES != ''
         uses: actions/github-script@v2
         with:
           script: |
             const projectTags = require(`${process.env.GITHUB_WORKSPACE}/src/data/project-tags/project-tags.json`).map(t => t.slug);
-            //console.log(projectTags);
-            //console.log(process.env)
-            //console.log(process.env.PROJECT_FILES)
 
             const modifiedProjectFiles = process.env.PROJECT_FILES ? process.env.PROJECT_FILES.split(' ') : null
-            //console.log(modifiedProjectFiles)
             let errors = []
 
             // Check all modified project json files
@@ -232,7 +222,6 @@ jobs:
                   projectJson.projectTags.map(pt => {
                     if (!projectTags.includes(pt)) { // should error if false
                       invalidTags.push(pt);
-                      //core.setFailed(`${pt} not present in src/data/projects/project-tags/project-tags.json. <link to wiki>Exiting.`);
                     }
                   })
 
@@ -245,7 +234,8 @@ jobs:
 
               // Set Error Annotation for Results
               if (errors.length > 0) {
-                core.setFailed(`There are errors with the ProjectTags mapping. For more info, visit <link to wiki>. 
+                core.setFailed(`
+                There are errors with the <projectTags> mapping. For more info, visit https://github.com/newrelic/opensource-website/wiki/Contributing-Project-Data#note-about-projectTags. 
                 Errors: ${JSON.stringify(errors, null, 2)}`)
               }
             }
