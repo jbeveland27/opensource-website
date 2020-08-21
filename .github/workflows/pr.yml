@@ -179,16 +179,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # - name: Run Check
-      #   run: |
-      #     npm install -g json
-
-      # Check for changes
-      # - name: Check for changes
-      #   id: checkForChanges
-      #   run: |
-      #     echo "::set-output name=grepValue::$( git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -c 'src/data/projects' )"
-
       - name: Get Changed Files
         id: getfile
         run: |
