@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { graphql } from 'gatsby';
 import { get } from 'lodash';
-import { Button } from '@newrelic/gatsby-theme-newrelic';
+import { Button, Icon } from '@newrelic/gatsby-theme-newrelic';
 import { css } from '@emotion/core';
 
 import Layout from '../components/layout';
@@ -12,9 +12,6 @@ import PageHeading from '../components/PageHeading';
 import ProjectMainContent from '../components/ProjectMainContent';
 import AsideNavigationItem from '../components/AsideNavigationItem';
 import styles from './external-project-page.module.scss';
-
-import iconGitHubGreen from '../images/icon-github-green.svg';
-import iconGitHub from '../images/icon-github.svg';
 
 export const query = graphql`
   query ExternalProjects($slug: String, $pagePath: String) {
@@ -62,21 +59,16 @@ const SubProjects = ({ projects }) => {
                   href={p.githubUrl}
                   target="__blank"
                   css={css`
-                    .dark-mode & {
-                      border-color: transparent;
-                    }
-
                     &&&:after {
                       display: none;
                     }
                   `}
                 >
-                  <img
+                  <Icon
                     css={css`
                       margin-right: 0.5rem;
                     `}
-                    src={iconGitHub}
-                    alt="GitHub Logo"
+                    name={Icon.TYPE.GITHUB}
                   />
                   <span className={styles.subProjectCallToActionLabel}>
                     View Repo
@@ -155,18 +147,12 @@ const ExternalProjectPage = ({ data }) => {
                   variant={Button.VARIANT.NORMAL}
                   href={project.githubUrl}
                   rel="noopener noreferrer"
-                  css={css`
-                    .dark-mode & {
-                      border-color: transparent;
-                    }
-                  `}
                 >
-                  <img
+                  <Icon
                     css={css`
                       margin-right: 0.5rem;
                     `}
-                    src={iconGitHubGreen}
-                    alt="GitHub logo"
+                    name={Icon.TYPE.GITHUB}
                   />
                   GitHub
                 </Button>
