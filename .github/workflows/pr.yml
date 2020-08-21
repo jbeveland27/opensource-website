@@ -185,7 +185,7 @@ jobs:
           PROJECT_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep "src/data/projects" )
 
           if [ -z "$PROJECT_FILES" ]; then
-            echo "::warning No project json files detected."
+            echo "No project json files detected."
           else
             echo ::set-env name=PROJECT_FILES::$PROJECT_FILES
           fi
