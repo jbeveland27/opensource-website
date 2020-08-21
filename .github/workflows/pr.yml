@@ -222,7 +222,7 @@ jobs:
 
             if (modifiedProjectFiles) {
               modifiedProjectFiles.map(f => {
-                const projectJson = require(`${$process.env.GITHUB_WORKSPACE/f}`)
+                const projectJson = require(`${process.env.GITHUB_WORKSPACE/f}`)
                 console.log(projectJson)
 
                 // Check tags
