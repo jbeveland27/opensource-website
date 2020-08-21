@@ -246,6 +246,6 @@ jobs:
               // Set Error Annotation for Results
               if (errors.length > 0) {
                 core.setFailed(`There are errors with the ProjectTags mapping. For more info, visit <link to wiki>. 
-                Errors: ${JSON.stringify(errors, null 2)}`)
+                Errors: ${JSON.stringify(errors, null, 2)}`)
               }
             }
