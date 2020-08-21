@@ -15,7 +15,7 @@
   "description": "Best Practices for Measuring Your Code Pipeline Webinar",
   "ossCategory": "example-code",
   "primaryLanguage": "JavaScript",
-  "projectTags": ["not_valid"],
+  "projectTags": [],
   "website": {
     "title": "Code Pipeline Webinar Demo App",
     "url": "https://github.com/newrelic/best-practices-for-measuring-your-code-pipeline"
