@@ -192,7 +192,7 @@ jobs:
       - name: Get Changed Files
         id: getfile
         run: |
-          echo "::set-output name=files::$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} )"
+          echo "::set-output name=files::$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} )"
 
       - name: echo output
         run: |
