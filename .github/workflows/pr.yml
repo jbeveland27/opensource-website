@@ -195,11 +195,19 @@ jobs:
           # echo "::set-output name=project_files::$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep "src/data/projects" | sed ':a;N;$!ba;s/\n/%0A/g' )"
           PROJECT_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep "src/data/projects" )
 
+          if [ -z "$PROJECT_FILES" ]; then
+            echo "::warning No project json files detected."
+          else
+            echo ::set-env name=PROJECT_FILES::$PROJECT_FILES
+          fi
+
       - name: echo output
+        if: env.PROJECT_FILES != ''
         run: |
           echo $PROJECT_FILES
 
       - name: Run Check
+        if: env.PROJECT_FILES != ''
         uses: actions/github-script@v2
         with:
           script: |
@@ -214,6 +222,5 @@ jobs:
             if (modifiedProjectFiles) {
               modifiedProjectFiles.map(f => {
                 const projectJson = require(`f`)
-                
               })
             }
