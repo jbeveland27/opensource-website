@@ -218,6 +218,7 @@ jobs:
 
             const modifiedProjectFiles = process.env.PROJECT_FILES ? process.env.PROJECT_FILES.split(' ') : null
             //console.log(modifiedProjectFiles)
+            let errors = []
 
             if (modifiedProjectFiles) {
               modifiedProjectFiles.map(f => {
@@ -225,10 +226,23 @@ jobs:
                 console.log(projectJson)
 
                 // Check tags
+                let invalidTags = []
                 projectJson.projectTags.map(pt => {
                   if (!projectTags.includes(pt)) { // should error if false
-                    core.setFailed(`${pt} not present in src/data/projects/project-tags/project-tags.json. <link to wiki>Exiting.`);
+                    invalidTags.push(pt);
+                    //core.setFailed(`${pt} not present in src/data/projects/project-tags/project-tags.json. <link to wiki>Exiting.`);
                   }
                 })
+
+                // Collect invalidTags into errors
+                if (invalidTags.length > 0) {
+                  errors.push({file: f, invalidTags: invalidTags})
+                }
+
               })
+
+
+              if (errors.length > 0) {
+                core.setFailed(`${JSON.stringify(errors)} | <link to wiki> | Exiting.`)
+              }
             }
