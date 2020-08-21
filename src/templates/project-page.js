@@ -239,7 +239,7 @@ const ProjectPage = (props) => {
         {contentEditLink && (
           <Button
             as="a"
-            variant={Button.VARIANT.PLAIN}
+            variant={Button.VARIANT.NORMAL}
             href={contentEditLink}
             target="__blank"
             rel="noopener noreferrer"
