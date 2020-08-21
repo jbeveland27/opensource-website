@@ -88,7 +88,7 @@
 
 .call-to-action-buttons {
   padding: 16px 16px 10px;
-  background-color: var(--color-neutrals-100);
+  background-color: var(--divider-color);
   border-radius: 5px 5px 0 0;
 }
 
@@ -114,7 +114,7 @@
 
 .call-to-action-category-specification {
   padding: 16px 18px;
-  box-shadow: inset 0 0 0 3px var(--color-neutrals-100);
+  box-shadow: inset 0 0 0 1px var(--divider-color);
   border-radius: 0 0 0 0;
 }
 
@@ -296,11 +296,6 @@ p.call-to-action-description {
   position: absolute;
 }
 
-.button-icon {
-  line-height: 11px;
-  margin-right: 8px;
-}
-
 .sidebar-tags {
   list-style-type: none;
   padding: 0;
@@ -448,14 +443,6 @@ p.call-to-action-description {
     }
   }
 
-  .call-to-action-buttons {
-    background-color: var(--color-neutrals-300);
-  }
-
-  .call-to-action-category-specification {
-    box-shadow: inset 0 0 0 3px var(--color-neutrals-300);
-  }
-
   .project-screenshot-list-item {
     opacity: 0.5;
     transition: opacity 0.1s var(--ease-out-quad);
@@ -470,4 +457,3 @@ p.call-to-action-description {
     background-color: var(--color-neutrals-200);
   }
 }
-

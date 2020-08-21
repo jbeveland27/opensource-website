@@ -2,12 +2,11 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { css } from '@emotion/core';
-import { Button } from '@newrelic/gatsby-theme-newrelic';
+import { Button, Icon } from '@newrelic/gatsby-theme-newrelic';
 import { graphql, Link } from 'gatsby';
 import { format } from 'date-fns';
 import Carousel, { Modal, ModalGateway } from 'react-images';
 import { get } from 'lodash';
-import { Edit } from 'react-feather';
 
 import Layout from '../components/layout';
 import SEO from '../components/seo';
@@ -29,8 +28,6 @@ import commitLightIcon from '../images/icon-commit-light.svg';
 import prLightIcon from '../images/icon-pr-light.svg';
 import contributorLightIcon from '../images/icon-contributor-light.svg';
 import openIssueLightIcon from '../images/icon-open-issue-light.svg';
-import iconGitHubWhite from '../images/icon-github-white.svg';
-import iconGitHubDarkGreen from '../images/icon-github-dark-green.svg';
 
 import withDarkMode from '../components/withDarkMode';
 
@@ -227,12 +224,11 @@ const ProjectPage = (props) => {
           href={project.githubUrl}
           rel="noopener noreferrer"
         >
-          <img
+          <Icon
             css={css`
               margin-right: 0.5rem;
             `}
-            src={darkMode.value ? iconGitHubDarkGreen : iconGitHubWhite}
-            alt="GitHub logo"
+            name={Icon.TYPE.GITHUB}
           />
           View Repo
         </Button>
@@ -243,15 +239,13 @@ const ProjectPage = (props) => {
             href={contentEditLink}
             target="__blank"
             rel="noopener noreferrer"
-            css={css`
-              .dark-mode & {
-                border-color: transparent;
-              }
-            `}
           >
-            <span className={styles.buttonIcon}>
-              <Edit color="currentColor" size={16} />
-            </span>
+            <Icon
+              css={css`
+                margin-right: 0.5rem;
+              `}
+              name={Icon.TYPE.EDIT}
+            />
             Edit page
           </Button>
         )}
