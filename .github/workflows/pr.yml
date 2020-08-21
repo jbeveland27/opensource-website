@@ -124,7 +124,7 @@ jobs:
   job-check-project-tags:
     name: Check Project Tags
     runs-on: ubuntu-latest
-    needs: job-checkout-and-build
+    # needs: job-checkout-and-build
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
