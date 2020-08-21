@@ -212,22 +212,22 @@ jobs:
         with:
           script: |
             const projectTags = require(`${process.env.GITHUB_WORKSPACE}/src/data/project-tags/project-tags.json`).map(t => t.slug);
-            console.log(projectTags);
-            console.log(process.env)
-            console.log(process.env.PROJECT_FILES)
+            //console.log(projectTags);
+            //console.log(process.env)
+            //console.log(process.env.PROJECT_FILES)
 
             const modifiedProjectFiles = process.env.PROJECT_FILES ? process.env.PROJECT_FILES.split(' ') : null
-            console.log(modifiedProjectFiles)
+            //console.log(modifiedProjectFiles)
 
             if (modifiedProjectFiles) {
               modifiedProjectFiles.map(f => {
-                const projectJson = require(`f`)
+                const projectJson = require(`${f}`)
                 console.log(projectJson)
 
                 // Check tags
                 projectJson.projectTags.map(pt => {
                   if (!projectTags.includes(pt)) { // should error if false
-                    core.setFailed(`${pt} not present in src/data/projects/project-tags/project-tags.json. Exiting.`);
+                    core.setFailed(`${pt} not present in src/data/projects/project-tags/project-tags.json. <link to wiki>Exiting.`);
                   }
                 })
               })
