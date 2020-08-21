@@ -206,21 +206,29 @@ jobs:
         run: |
           echo $PROJECT_FILES
 
-      - name: Run Check
+      - name: Run Project Tags Check
         if: env.PROJECT_FILES != ''
         uses: actions/github-script@v2
         with:
           script: |
-            const projectTags = require(`${process.env.GITHUB_WORKSPACE}/src/data/project-tags/project-tags.json`);
+            const projectTags = require(`${process.env.GITHUB_WORKSPACE}/src/data/project-tags/project-tags.json`).map(t => t.slug);
             console.log(projectTags);
             console.log(process.env)
             console.log(process.env.PROJECT_FILES)
 
-            const modifiedProjectFiles = process.env.PROJECT_FILES ? process.env.PROJECT_FILES.split('\n') : null
+            const modifiedProjectFiles = process.env.PROJECT_FILES ? process.env.PROJECT_FILES.split(' ') : null
             console.log(modifiedProjectFiles)
 
             if (modifiedProjectFiles) {
               modifiedProjectFiles.map(f => {
                 const projectJson = require(`f`)
+                console.log(projectJson)
+
+                // Check tags
+                projectJson.projectTags.map(pt => {
+                  if (!projectTags.includes(pt)) { // should error if false
+                    core.setFailed(`${pt} not present in src/data/projects/project-tags/project-tags.json. Exiting.`);
+                  }
+                })
               })
             }
