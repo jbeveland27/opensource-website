@@ -121,6 +121,35 @@ jobs:
   #     - name: Run Jest
   #       run: npm run test
 
+  log-context:
+    runs-on: ubuntu-latest
+    steps:
+      # Dump all contexts
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - name: Dump job context
+        env:
+          JOB_CONTEXT: ${{ toJson(job) }}
+        run: echo "$JOB_CONTEXT"
+      - name: Dump steps context
+        env:
+          STEPS_CONTEXT: ${{ toJson(steps) }}
+        run: echo "$STEPS_CONTEXT"
+      - name: Dump runner context
+        env:
+          RUNNER_CONTEXT: ${{ toJson(runner) }}
+        run: echo "$RUNNER_CONTEXT"
+      - name: Dump strategy context
+        env:
+          STRATEGY_CONTEXT: ${{ toJson(strategy) }}
+        run: echo "$STRATEGY_CONTEXT"
+      - name: Dump matrix context
+        env:
+          MATRIX_CONTEXT: ${{ toJson(matrix) }}
+        run: echo "$MATRIX_CONTEXT"
+
   job-check-project-tags:
     name: Check Project Tags
     runs-on: ubuntu-latest
@@ -163,7 +192,7 @@ jobs:
       - name: Get Changed Files
         id: getfile
         run: |
-          echo "::set-output name=files::$(git diff --name-only ${{ github.base_ref}} ${{ github.sha }})"
+          echo "::set-output name=files::$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} )"
 
       - name: echo output
         run: |
