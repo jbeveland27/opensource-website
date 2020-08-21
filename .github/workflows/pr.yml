@@ -220,6 +220,7 @@ jobs:
             //console.log(modifiedProjectFiles)
             let errors = []
 
+            // Check all modified project json files
             if (modifiedProjectFiles) {
               modifiedProjectFiles.map(f => {
                 const projectJson = require(`${process.env.GITHUB_WORKSPACE}/${f}`)
@@ -227,22 +228,24 @@ jobs:
 
                 // Check tags
                 let invalidTags = []
-                projectJson.projectTags.map(pt => {
-                  if (!projectTags.includes(pt)) { // should error if false
-                    invalidTags.push(pt);
-                    //core.setFailed(`${pt} not present in src/data/projects/project-tags/project-tags.json. <link to wiki>Exiting.`);
+                if ( projectJson.projectTags ) {
+                  projectJson.projectTags.map(pt => {
+                    if (!projectTags.includes(pt)) { // should error if false
+                      invalidTags.push(pt);
+                      //core.setFailed(`${pt} not present in src/data/projects/project-tags/project-tags.json. <link to wiki>Exiting.`);
+                    }
+                  })
+
+                  // Collect invalidTags into errors
+                  if (invalidTags.length > 0) {
+                    errors.push({file: f, invalidTags: invalidTags})
                   }
-                })
-
-                // Collect invalidTags into errors
-                if (invalidTags.length > 0) {
-                  errors.push({file: f, invalidTags: invalidTags})
                 }
-
               })
 
-
+              // Set Error Annotation for Results
               if (errors.length > 0) {
-                core.setFailed(`Errors: ${JSON.stringify(errors)} | <link to wiki> | Exiting.`)
+                core.setFailed(`There are errors with the ProjectTags mapping. For more info, visit <link to wiki>. 
+                Errors: ${JSON.stringify(errors, null 2)}`)
               }
             }
