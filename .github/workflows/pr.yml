@@ -128,6 +128,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v1
@@ -151,6 +153,21 @@ jobs:
       # - name: Run Check
       #   run: |
       #     npm install -g json
+
+      # Check for changes
+      # - name: Check for changes
+      #   id: checkForChanges
+      #   run: |
+      #     echo "::set-output name=grepValue::$( git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -c 'src/data/projects' )"
+
+      - name: Get Changed Files
+        id: getfile
+        run: |
+          echo "::set-output name=files::$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | xargs)"
+
+      - name: echo output
+        run: |
+          echo ${{ steps.getfile.outputs.files }}
 
       - name: Run Check
         uses: actions/github-script@v2
