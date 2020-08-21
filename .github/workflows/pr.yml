@@ -181,7 +181,7 @@ jobs:
                 let invalidTags = []
                 if ( projectJson.projectTags ) {
                   projectJson.projectTags.map(pt => {
-                    if (!projectTags.includes(pt)) { // should error if false
+                    if (!projectTags.includes(pt)) {
                       invalidTags.push(pt);
                     }
                   })
