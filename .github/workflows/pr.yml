@@ -193,7 +193,7 @@ jobs:
         id: getfile
         run: |
           # echo "::set-output name=project_files::$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep "src/data/projects" | sed ':a;N;$!ba;s/\n/%0A/g' )"
-          PROJECT_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep "src/data/projects" )"
+          PROJECT_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep "src/data/projects" )
 
       # - name: echo output
       #   run: |
@@ -206,3 +206,6 @@ jobs:
             const projectTags = require(`${process.env.GITHUB_WORKSPACE}/src/data/project-tags/project-tags.json`);
             console.log(projectTags);
             console.log(process.env.PROJECT_FILES)
+
+            const modifiedProjectFiles = process.env.PROJECT_FILES ? process.env.PROJECT_FILES.split('\n') : null
+            console.log(JSON.stringify(modifledProjectFiles))
