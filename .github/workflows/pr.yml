@@ -201,10 +201,10 @@ jobs:
             echo ::set-env name=PROJECT_FILES::$PROJECT_FILES
           fi
 
-      - name: echo output
-        if: env.PROJECT_FILES != ''
-        run: |
-          echo $PROJECT_FILES
+      # - name: echo output
+      #   if: env.PROJECT_FILES != ''
+      #   run: |
+      #     echo $PROJECT_FILES
 
       - name: Run Project Tags Check
         if: env.PROJECT_FILES != ''
@@ -222,7 +222,7 @@ jobs:
 
             if (modifiedProjectFiles) {
               modifiedProjectFiles.map(f => {
-                const projectJson = require(`${process.env.GITHUB_WORKSPACE/f}`)
+                const projectJson = require(`${process.env.GITHUB_WORKSPACE}/${f}`)
                 console.log(projectJson)
 
                 // Check tags
