@@ -9,11 +9,50 @@ on:
     types: [pull-request-develop, pull-request-master]
 
 jobs:
-  job-checkout-and-build:
+  # job-checkout-and-build:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repo
+  #       uses: actions/checkout@v2
+
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v1
+  #       with:
+  #         node-version: 12
+
+  #     - name: Cache node_modules
+  #       id: cache-node
+  #       uses: actions/cache@v2
+  #       env:
+  #         cache-name: node-modules
+  #       with:
+  #         path: ~/.npm
+  #         key: ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-${{ env.cache-name }}-
+
+  #     - name: Install dependencies
+  #       run: npm ci
+
+  #     - name: Gatsby Build
+  #       run: |
+  #         if [ '${{ github.base_ref }}' = 'develop' ]; then
+  #           npm run build:staging
+  #         elif [ '${{ github.base_ref }}' = 'master' ]; then
+  #           npm run build:production
+  #         else
+  #           echo "::error::Pull Request opened on unsupported branch. Exiting."
+  #           exit 1
+  #         fi
+
+  job-check-project-tags:
+    name: Check Project Tags
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v1
@@ -34,89 +73,138 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Gatsby Build
+      - name: Get Changed Files
+        id: getfile
         run: |
-          if [ '${{ github.base_ref }}' = 'develop' ]; then
-            npm run build:staging
-          elif [ '${{ github.base_ref }}' = 'master' ]; then
-            npm run build:production
+          PROJECT_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep "src/data/projects" || true)
+
+          if [ -z "$PROJECT_FILES" ]; then
+            echo "No project json files detected."
           else
-            echo "::error::Pull Request opened on unsupported branch. Exiting."
-            exit 1
+            echo ::set-env name=PROJECT_FILES::$PROJECT_FILES
           fi
 
-  job-eslint:
-    name: eslint
-    runs-on: ubuntu-latest
-    needs: job-checkout-and-build
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v2
-
-      - name: Setup node
-        uses: actions/setup-node@v1
+      - name: Run Project Tags Check
+        if: env.PROJECT_FILES != ''
+        uses: actions/github-script@v2
         with:
-          node-version: 10.x
+          script: |
+            const fs = require('fs');
+            const projectTags = require(`${process.env.GITHUB_WORKSPACE}/src/data/project-tags/project-tags.json`).map(t => t.slug);
 
-      - name: Cache node_modules
-        id: cache-node
-        uses: actions/cache@v2
-        env:
-          cache-name: node-modules
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ env.cache-name }}-
+            const modifiedProjectFiles = process.env.PROJECT_FILES ? process.env.PROJECT_FILES.split(' ') : null
+            console.log(`Detected Project Files: ${JSON.stringify(modifiedProjectFiles, null, 2)}`)
+            let errors = []
 
-      - name: Install Dependencies
-        run: npm ci
+            // Check all modified project json files
+            if (modifiedProjectFiles) {
+              modifiedProjectFiles.forEach(f => {
+                const fileName = `${process.env.GITHUB_WORKSPACE}/${f}`;
+                const exists = fs.existsSync(fileName)
 
-      - name: Run eslint-check and generate report
-        id: eslint-check
-        run: |
-          npm run eslint-check -- --output-file eslint_report.json --format json
-        continue-on-error: true
+                if (!exists) {
+                  console.log(`INFO:: File not found: ${fileName}`)
+                } else {
+                  const projectJson = require(`${process.env.GITHUB_WORKSPACE}/${f}`)
+                  console.log(projectJson)
 
-      - name: Annotate Lint Results
-        uses: ataylorme/eslint-annotate-action@1.0.4
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          report-json: eslint_report.json
-        continue-on-error: true
+                  // Check tags
+                  let invalidTags = []
+                  if ( projectJson.projectTags ) {
+                    projectJson.projectTags.map(pt => {
+                      if (!projectTags.includes(pt)) {
+                        invalidTags.push(pt);
+                      }
+                    })
 
-      - name: Check eslint-check outcome
-        if: steps.eslint-check.outcome != 'success'
-        run: |
-          echo "::error::eslint-check failed. View output of _Run eslint-check and generate report_ step"
-          exit 1
+                    // Collect invalidTags into errors
+                    if (invalidTags.length > 0) {
+                      errors.push({file: f, invalidTags: invalidTags})
+                    }
+                  }
+                }
+              })
 
-  job-test:
-    name: Jest
-    runs-on: ubuntu-latest
-    needs: job-checkout-and-build
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v2
+              // Set Error Annotation for Results
+              if (errors.length > 0) {
+                core.setFailed(
+                `There are errors with the <projectTags> mapping. For more info, visit https://github.com/newrelic/opensource-website/wiki/Contributing-Project-Data#note-about-projectTags. 
+                Errors: ${JSON.stringify(errors, null, 2)}`)
+              }
+            }
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v1
-        with:
-          node-version: 12
+  # job-eslint:
+  #   name: eslint
+  #   runs-on: ubuntu-latest
+  #   needs: [job-checkout-and-build, job-check-project-tags]
+  #   steps:
+  #     - name: Checkout repo
+  #       uses: actions/checkout@v2
 
-      - name: Cache node_modules
-        id: cache-node
-        uses: actions/cache@v2
-        env:
-          cache-name: node-modules
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ env.cache-name }}-
+  #     - name: Setup node
+  #       uses: actions/setup-node@v1
+  #       with:
+  #         node-version: 10.x
 
-      - name: Install dependencies
-        run: npm ci
+  #     - name: Cache node_modules
+  #       id: cache-node
+  #       uses: actions/cache@v2
+  #       env:
+  #         cache-name: node-modules
+  #       with:
+  #         path: ~/.npm
+  #         key: ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-${{ env.cache-name }}-
 
-      - name: Run Jest
-        run: npm run test
+  #     - name: Install Dependencies
+  #       run: npm ci
+
+  #     - name: Run eslint-check and generate report
+  #       id: eslint-check
+  #       run: |
+  #         npm run eslint-check -- --output-file eslint_report.json --format json
+  #       continue-on-error: true
+
+  #     - name: Annotate Lint Results
+  #       uses: ataylorme/eslint-annotate-action@1.0.4
+  #       with:
+  #         repo-token: ${{ secrets.GITHUB_TOKEN }}
+  #         report-json: eslint_report.json
+  #       continue-on-error: true
+
+  #     - name: Check eslint-check outcome
+  #       if: steps.eslint-check.outcome != 'success'
+  #       run: |
+  #         echo "::error::eslint-check failed. View output of _Run eslint-check and generate report_ step"
+  #         exit 1
+
+  # job-test:
+  #   name: Jest
+  #   runs-on: ubuntu-latest
+  #   needs: [job-checkout-and-build, job-check-project-tags]
+  #   steps:
+  #     - name: Checkout repo
+  #       uses: actions/checkout@v2
+
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v1
+  #       with:
+  #         node-version: 12
+
+  #     - name: Cache node_modules
+  #       id: cache-node
+  #       uses: actions/cache@v2
+  #       env:
+  #         cache-name: node-modules
+  #       with:
+  #         path: ~/.npm
+  #         key: ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-${{ env.cache-name }}-
+
+  #     - name: Install dependencies
+  #       run: npm ci
+
+  #     - name: Run Jest
+  #       run: npm run test
