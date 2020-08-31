@@ -103,7 +103,7 @@ jobs:
                 const exists = fs.existsSync(fileName)
 
                 if (!exists) {
-                  console.log(`INFO:: File not found: ${fileName})
+                  console.log(`INFO:: File not found: ${fileName}`)
                 } else {
                   const projectJson = require(`${process.env.GITHUB_WORKSPACE}/${f}`)
                   console.log(projectJson)
