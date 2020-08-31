@@ -93,7 +93,7 @@ jobs:
             const projectTags = require(`${process.env.GITHUB_WORKSPACE}/src/data/project-tags/project-tags.json`).map(t => t.slug);
 
             const modifiedProjectFiles = process.env.PROJECT_FILES ? process.env.PROJECT_FILES.split(' ') : null
-            console.log(`Detected Project Files: ${modifiedProjectFiles}`)
+            console.log(`Detected Project Files: ${JSON.stringify(modifiedProjectFiles, null, 2)}`)
             let errors = []
 
             // Check all modified project json files
@@ -102,7 +102,9 @@ jobs:
                 const fileName = `${process.env.GITHUB_WORKSPACE}/${f}`;
                 const exists = fs.existsSync(fileName)
 
-                if (exists) {
+                if (!exists) {
+                  console.log(`INFO:: File not found: ${fileName})
+                } else {
                   const projectJson = require(`${process.env.GITHUB_WORKSPACE}/${f}`)
                   console.log(projectJson)
 
