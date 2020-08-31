@@ -93,7 +93,7 @@ jobs:
             const projectTags = require(`${process.env.GITHUB_WORKSPACE}/src/data/project-tags/project-tags.json`).map(t => t.slug);
 
             const modifiedProjectFiles = process.env.PROJECT_FILES ? process.env.PROJECT_FILES.split(' ') : null
-            console.log(`Detected Project Files: modifiedProjectFiles`)
+            console.log(`Detected Project Files: ${modifiedProjectFiles}`)
             let errors = []
 
             // Check all modified project json files
